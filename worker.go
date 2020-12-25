@@ -22,7 +22,7 @@ func (wr *Worker) Run(jobCh TaskQueue, resultCh ResultQueue, firstTask Task) {
 	}
 
 	for job := range jobCh {
-		log.Printf("begin consum | task | %v", firstTask)
+		log.Printf("begin consum | task | %v", job)
 		job.Do()
 		resultCh <- job
 		log.Printf("consum | task | %v", job)

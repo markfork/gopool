@@ -50,11 +50,12 @@ func (p *Pool) Execute(task Task) {
 	if ok {
 		log.Printf("UnderMaxWorkNum true | %v", task)
 		p.runWorker(task)
+		return
 	}
 
 	// 缓冲任务队列已满、且活跃协程数已达最大上限, 且有执行策略执行拒绝策略
 	if nil != p.Rejection {
-		p.Rejection.Reject()
+		p.Rejection.Reject(task)
 		return
 	}
 	// 默认拒绝策略!

@@ -32,6 +32,7 @@ type Pool struct {
 
 // Execute() 协程池运行逻辑
 func (p *Pool) Execute(task Task) {
+	task.SetState(BLOCKING)
 	// 当前线程池 工作协程 数量 < 核心工作协程数限制 & 可以正常运行协程
 	if p.UnderCoreWorkNum() && p.runWorker(task) {
 		log.Printf("enter | task | %v", task)
@@ -51,14 +52,17 @@ func (p *Pool) Execute(task Task) {
 		p.runWorker(task)
 	}
 
-	// 缓冲任务队列已满、且活跃协程数已达最大上限 执行拒绝策略
-	//p.Rejection.Reject()
+	// 缓冲任务队列已满、且活跃协程数已达最大上限, 且有执行策略执行拒绝策略
+	if nil != p.Rejection {
+		p.Rejection.Reject()
+		return
+	}
+	// 默认拒绝策略!
 	log.Printf("拒绝接收")
 }
 
 func (p *Pool) push(task Task) bool {
 	log.Printf("push to task queue")
-
 	// 实现延时 100 ms 塞入
 	select {
 	case p.TaskQueue <- task:
@@ -81,7 +85,7 @@ func (p *Pool) UnderMaxWorkNum() bool {
 	p.RLock()
 	defer p.RUnlock()
 	log.Printf("UnderMaxWorkNum| %v", p.ActiveWorkNum < p.MaxWorkerNum)
-	return p.ActiveWorkNum <= p.MaxWorkerNum
+	return p.ActiveWorkNum < p.MaxWorkerNum
 }
 
 func (p *Pool) runWorker(task Task) bool {
@@ -100,22 +104,22 @@ func (p *Pool) runWorker(task Task) bool {
 	return true
 }
 
-// 调整携程池配置;
+// 调整协程池配置;
 func (p *Pool) Adjust(tqLen int, reqLen int, coreNum int, maxNum int) {
-
 	return
 }
 
 // 关闭协程池 - 硬性关闭
 func (p *Pool) ShutDown() {
-
+	return
 }
 
 // 关闭协程池 - 柔性关闭
 func (p *Pool) Close() {
-
+	return
 }
 
+// 新建协程池
 func NewPool(tqLen int, reqLen int, coreNum int, maxNum int) *Pool {
 	var taskQueue = make(TaskQueue, tqLen)
 	var resultQueue = make(ResultQueue, reqLen)

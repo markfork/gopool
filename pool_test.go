@@ -2,11 +2,8 @@ package gopool
 
 import (
 	"fmt"
-	"testing"
-)
-
-import (
 	"math/rand"
+	"testing"
 )
 
 func TestNewPool(t *testing.T) {
@@ -16,7 +13,7 @@ func TestNewPool(t *testing.T) {
 	// 异步接收处理结果
 	go func() {
 		for res := range pool.ResultQueue {
-			fmt.Printf("res | %v", res.(DefaultTask).GetResult())
+			fmt.Printf("res | %v", res.(*DefaultTask).GetResult())
 		}
 	}()
 
@@ -28,6 +25,6 @@ func TestNewPool(t *testing.T) {
 		// 控制任务生成速率, 模拟低并发、高并发
 		//time.Sleep(1 * time.Second)
 		// 将任务塞入协程池, 并运行
-		pool.Execute(task)
+		pool.Execute(&task)
 	}
 }

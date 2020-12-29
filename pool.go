@@ -32,7 +32,7 @@ type Pool struct {
 
 // Execute() 协程池运行逻辑
 func (p *Pool) Execute(task Task) {
-	task.SetState(BLOCKING)
+	task.SetState(NEW)
 	// 当前线程池 工作协程 数量 < 核心工作协程数限制 & 可以正常运行协程
 	if p.UnderCoreWorkNum() && p.runWorker(task) {
 		log.Printf("enter | task | %v", task)
@@ -65,6 +65,7 @@ func (p *Pool) Execute(task Task) {
 func (p *Pool) push(task Task) bool {
 	log.Printf("push to task queue")
 	// 实现延时 100 ms 塞入
+	task.SetState(BLOCKED)
 	select {
 	case p.TaskQueue <- task:
 		log.Printf("push %v success | current size | %d", task, len(p.TaskQueue))

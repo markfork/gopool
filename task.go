@@ -6,10 +6,11 @@ import (
 )
 
 const (
-	RUNNING  = "running"
-	BLOCKING = "blocking"
-	FAILED   = "failed"
-	SUCCEED  = "succeed"
+	NEW     = "new"
+	RUNNING = "running"
+	BLOCKED = "blocked"
+	FAILED  = "failed"
+	SUCCEED = "succeed"
 )
 
 // 封装 task 接口, 处理任务的 核心逻辑
